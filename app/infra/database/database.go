@@ -3,16 +3,17 @@ package database
 import (
 	"context"
 
-	"github.com/labstack/gommon/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 )
 
 type Manager struct {
-	Client *mongo.Client
+	Client   *mongo.Client
+	Database *mongo.Database
 }
 
-func (manager *Manager) InitDB(uri string) error {
+func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Manager {
 	clientMongo, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -20,10 +21,17 @@ func (manager *Manager) InitDB(uri string) error {
 
 	err = clientMongo.Ping(context.TODO(), nil)
 	if err != nil {
+		logger.Fatal("Failed to connect database", zap.String("err", err.Error()))
 		panic(err)
 	}
-	log.Info("Database connected")
+	logger.Info("Database connected")
 
-	manager.Client = clientMongo
-	return nil
+	return Manager{
+		Client:   clientMongo,
+		Database: clientMongo.Database(databasName),
+	}
+}
+
+func (manager *Manager) InitDB(uri string, databaseName string) {
+
 }

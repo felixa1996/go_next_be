@@ -1,25 +1,26 @@
 package domain_user
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/felixa1996/go_next_be/app/infra/database"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
-func RegisterUserHandler(db database.Manager, contextTimeout time.Duration, group *echo.Group) {
+func RegisterUserHandler(db database.Manager, logger *zap.Logger, contextTimeout time.Duration, group *echo.Group) {
+	// todo move
 	// init used repository and usecase
-	repo := NewUserMongoRepository(&db)
+	repo := NewUserMongoRepository(&db, logger)
 	// todo need change
-	usecase := NewUserUsecase(repo, contextTimeout)
+	usecase := NewUserUsecase(repo, logger, contextTimeout)
 
 	group.GET("", func(c echo.Context) error {
 		ctx := c.Request().Context()
 		res, err := usecase.FindPagination(ctx)
 		if err != nil {
-			log.Fatal("Failed to fetch user", err)
+			logger.Fatal("Failed to fetch user", zap.String("err", err.Error()))
 			return c.JSON(http.StatusInternalServerError, err)
 		}
 		return c.JSON(http.StatusOK, res)

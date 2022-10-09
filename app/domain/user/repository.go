@@ -2,19 +2,21 @@ package domain_user
 
 import (
 	"context"
-	"log"
 
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"go.uber.org/zap"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type userMongoRepository struct {
-	Db *database.Manager
+	db     *database.Manager
+	logger *zap.Logger
 }
 
-func NewUserMongoRepository(db *database.Manager) UserRepository {
+func NewUserMongoRepository(db *database.Manager, logger *zap.Logger) UserRepository {
 	return &userMongoRepository{
-		Db: db,
+		db:     db,
+		logger: logger,
 	}
 }
 
@@ -23,14 +25,14 @@ func (r *userMongoRepository) FindPagination(ctx context.Context) ([]User, error
 	var users []User
 
 	// todo need change default db
-	cursor, err := r.Db.Client.Database("generic_db").Collection(CollectionName).Find(ctx, bson.M{})
+	cursor, err := r.db.Client.Database("generic_db").Collection(CollectionName).Find(ctx, bson.M{})
 	if err != nil {
-		log.Fatal("Failed to fetch user", err)
+		r.logger.Fatal("Failed to fetch user", zap.String("err", err.Error()))
 	}
 	for cursor.Next(ctx) {
 		err := cursor.Decode(&user)
 		if err != nil {
-			log.Fatal(err)
+			r.logger.Fatal("Failed to decode user", zap.String("err", err.Error()))
 		}
 		users = append(users, user)
 	}

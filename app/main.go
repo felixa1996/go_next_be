@@ -1,32 +1,35 @@
 package main
 
 import (
-	"github.com/labstack/gommon/log"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/felixa1996/go_next_be/app/common"
+	. "github.com/felixa1996/go_next_be/app/common"
 	"github.com/felixa1996/go_next_be/app/infra/database"
 )
 
 func main() {
-	// todo move config into single function
-	viper.SetConfigFile(".env")
-	err := viper.ReadInConfig()
+	// init config
+	ReadConfigFromEnv()
+
+	// init logging
+	logger := InitLogging()
+	// defer logger.Sync()
+
+	// init database
+	dbManager := database.NewDatabaseManager(logger, viper.GetString("MONGODB_URI"), viper.GetString("MONGODB_DB"))
+
+	// init app
+	InitApp(dbManager, logger)
+
+	err := common.Application.Echo.Start(":" + viper.GetString("PORT"))
 	if err != nil {
+		logger.Fatal("Failed to start app",
+			zap.String("app", viper.GetString("APP_NAME")),
+			zap.Error(err),
+		)
 		panic(err)
 	}
-
-	if viper.GetBool(`debug`) {
-		log.Infof("Service %s on DEBUG mode", viper.GetString("APP_NAME"))
-	}
-
-	dbManager := database.Manager{}
-	err = dbManager.InitDB(viper.GetString("MONGODB_URI"))
-	if err != nil {
-		panic(err)
-	}
-
-	common.Init(dbManager)
-
-	common.Application.Echo.Logger.Fatal(common.Application.Echo.Start(":" + viper.GetString("PORT")))
+	logger.Info("App successfully start", zap.String("app", viper.GetString("APP_NAME")))
 }

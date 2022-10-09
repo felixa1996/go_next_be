@@ -2,9 +2,12 @@ package common
 
 import (
 	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	domain_user "github.com/felixa1996/go_next_be/app/domain/user"
 	"github.com/felixa1996/go_next_be/app/infra/database"
@@ -18,9 +21,10 @@ var (
 type App struct {
 	Echo      *echo.Echo
 	dbManager database.Manager
+	logger    *zap.Logger
 }
 
-func Init(dbManager database.Manager) *App {
+func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 	e := echo.New()
 	e.Use(middleware.CORS())
 
@@ -29,6 +33,7 @@ func Init(dbManager database.Manager) *App {
 		Application = &App{
 			Echo:      echo.New(),
 			dbManager: dbManager,
+			logger:    logger,
 		}
 		Application.RegisterHandlers()
 	})
@@ -38,7 +43,8 @@ func Init(dbManager database.Manager) *App {
 
 // Register REST handler
 func (app *App) RegisterHandlers() {
+	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
 
 	user := app.Echo.Group("/v1/user")
-	domain_user.RegisterUserHandler(app.dbManager, 10000000, user)
+	domain_user.RegisterUserHandler(app.dbManager, app.logger, contextTimeout, user)
 }

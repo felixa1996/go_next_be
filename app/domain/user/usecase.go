@@ -2,19 +2,22 @@ package domain_user
 
 import (
 	"context"
-	"log"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type userUsecase struct {
 	repo           UserRepository
 	contextTimeout time.Duration
+	logger         *zap.Logger
 }
 
-func NewUserUsecase(repo UserRepository, contextTimeout time.Duration) UserUsecaseContract {
+func NewUserUsecase(repo UserRepository, logger *zap.Logger, contextTimeout time.Duration) UserUsecaseContract {
 	return &userUsecase{
 		repo:           repo,
 		contextTimeout: contextTimeout,
+		logger:         logger,
 	}
 }
 
@@ -24,7 +27,7 @@ func (u *userUsecase) FindPagination(c context.Context) ([]User, error) {
 
 	res, err := u.repo.FindPagination(ctx)
 	if err != nil {
-		log.Fatal("Failed to fetch user", err)
+		u.logger.Fatal("Failed to fetch user", zap.String("err", err.Error()))
 		return nil, err
 	}
 	return res, nil
