@@ -1,15 +1,32 @@
 package main
 
 import (
-	"net/http"
+	"github.com/labstack/gommon/log"
+	"github.com/spf13/viper"
 
-	"github.com/labstack/echo/v4"
+	"github.com/felixa1996/go_next_be/app/common"
+	"github.com/felixa1996/go_next_be/app/infra/database"
 )
 
 func main() {
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello World2")
-	})
-	e.Logger.Fatal(e.Start(":1323"))
+	// todo move config into single function
+	viper.SetConfigFile(".env")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	if viper.GetBool(`debug`) {
+		log.Info("Service %s on DEBUG mode", viper.GetString("APP_NAME"))
+	}
+
+	dbManager := database.Manager{}
+	err = dbManager.InitDB(viper.GetString("MONGODB_URI"))
+	if err != nil {
+		panic(err)
+	}
+
+	common.Init(dbManager)
+
+	common.Application.Echo.Logger.Fatal(common.Application.Echo.Start(":" + viper.GetString("PORT")))
 }
