@@ -17,7 +17,7 @@ func main() {
 	}
 
 	if viper.GetBool(`debug`) {
-		log.Info("Service %s on DEBUG mode", viper.GetString("APP_NAME"))
+		log.Infof("Service %s on DEBUG mode", viper.GetString("APP_NAME"))
 	}
 
 	dbManager := database.Manager{}
