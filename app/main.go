@@ -25,10 +25,7 @@ func main() {
 
 	err := common.Application.Echo.Start(":" + viper.GetString("PORT"))
 	if err != nil {
-		logger.Fatal("Failed to start app",
-			zap.String("app", viper.GetString("APP_NAME")),
-			zap.Error(err),
-		)
+		logger.Fatal("Failed to start app", zap.Error(err))
 		panic(err)
 	}
 }

@@ -1,2 +1,2 @@
 #!/bin/sh
-golangci-lint run
+make lint

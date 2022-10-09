@@ -3,6 +3,7 @@
 
 ### Go ###
 # Binaries for programs and plugins
+build/
 *.exe
 *.exe~
 *.dll
@@ -16,6 +17,9 @@
 *.out
 
 tmp/
+
+# Swagger docs
+docs/
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

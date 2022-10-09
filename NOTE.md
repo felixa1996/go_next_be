@@ -29,6 +29,10 @@ Air
 
 Husky
 1.go install github.com/automation-co/husky@latest
-2.add alias in zsh alias air='$(go env GOPATH)/bin/air'
+2.add alias in zsh alias husky='$(go env GOPATH)/bin/air'
 3.husky init
 4.husky add pre-commit "golangci-lint run"
+
+Swagger
+1. add alias in zsh alias swag='$(go env GOPATH)/bin/swag'
+swag init -g app/common/app.go --output docs

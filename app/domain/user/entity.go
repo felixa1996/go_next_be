@@ -9,7 +9,7 @@ type User struct {
 	Author string `bson:"author,omitempty" json:"author"`
 }
 
-// UserUsecase repersent usecase contract tied with user domain
+// UserUsecaseContract repersent usecase contract tied with user domain
 type UserUsecaseContract interface {
 	FindPagination(context.Context) ([]User, error)
 }
