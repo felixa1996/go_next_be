@@ -18,4 +18,7 @@ test:
 	go test ./...
 
 lint:
-	golangci-lint run
+	golangci-lint run ./...
+
+oas:
+	swag init -g app/common/app.go --output docs

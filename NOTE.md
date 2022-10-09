@@ -1,21 +1,11 @@
-1.glide
-2.viper
-
-Done
-1.air
-2.linter
-
-
 Todo
-1.Sample entity
-2.Sample Handler
-3.Setup sigterm
-4.Disconnect mongo
-5.log
+1.healthcheck readiness
+2.golang response formatter https://adityarama1210.medium.com/create-golang-api-doc-with-swag-d73be1767d39
+3.golang keycloak
+4.golang error
+5.golang sqs
 6.redis
-7.env
 8.kafka
-10.precommit
 11.testing
 
 Cmd:

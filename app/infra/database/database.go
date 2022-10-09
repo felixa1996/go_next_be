@@ -9,7 +9,6 @@ import (
 )
 
 type Manager struct {
-	Client   *mongo.Client
 	Database *mongo.Database
 }
 
@@ -27,7 +26,6 @@ func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Mana
 	logger.Info("Database connected")
 
 	return Manager{
-		Client:   clientMongo,
 		Database: clientMongo.Database(databasName),
 	}
 }

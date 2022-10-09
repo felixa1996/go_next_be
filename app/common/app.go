@@ -13,6 +13,7 @@ import (
 
 	domain_user_handler "github.com/felixa1996/go_next_be/app/domain/user/handler"
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"github.com/felixa1996/go_next_be/app/infra/validator"
 	_ "github.com/felixa1996/go_next_be/docs"
 )
 
@@ -25,6 +26,7 @@ type App struct {
 	Echo      *echo.Echo
 	dbManager database.Manager
 	logger    *zap.Logger
+	validator.Validator
 }
 
 // @title Go Next BE API
@@ -50,11 +52,11 @@ func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	appSingleton.Do(func() {
-
 		Application = &App{
 			Echo:      e,
 			dbManager: dbManager,
 			logger:    logger,
+			Validator: *validator.InitValidator(),
 		}
 		Application.RegisterHandlers()
 	})
@@ -64,8 +66,10 @@ func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 
 // Register REST handler
 func (app *App) RegisterHandlers() {
+	// init validate
+
 	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
 
 	user := app.Echo.Group("/v1/user")
-	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, contextTimeout, user)
+	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
 }

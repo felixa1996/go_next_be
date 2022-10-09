@@ -18,7 +18,7 @@ func (h *UserHandler) FindPagination(c echo.Context) error {
 	ctx := c.Request().Context()
 	res, err := h.usecase.FindPagination(ctx)
 	if err != nil {
-		h.logger.Fatal("Failed to fetch user", zap.Error(err))
+		h.logger.Error("Failed to fetch user", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
