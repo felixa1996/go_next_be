@@ -31,5 +31,4 @@ func main() {
 		)
 		panic(err)
 	}
-	logger.Info("App successfully start", zap.String("app", viper.GetString("APP_NAME")))
 }

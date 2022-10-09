@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
+	"go.elastic.co/apm/module/apmechov4"
 	"go.uber.org/zap"
 
 	domain_user "github.com/felixa1996/go_next_be/app/domain/user"
@@ -26,6 +27,7 @@ type App struct {
 
 func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 	e := echo.New()
+	e.Use(apmechov4.Middleware())
 	e.Use(middleware.CORS())
 
 	appSingleton.Do(func() {

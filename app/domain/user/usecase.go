@@ -27,7 +27,7 @@ func (u *userUsecase) FindPagination(c context.Context) ([]User, error) {
 
 	res, err := u.repo.FindPagination(ctx)
 	if err != nil {
-		u.logger.Fatal("Failed to fetch user", zap.String("err", err.Error()))
+		u.logger.Fatal("Failed to fetch user", zap.Error(err))
 		return nil, err
 	}
 	return res, nil

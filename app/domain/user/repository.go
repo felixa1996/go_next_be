@@ -27,12 +27,12 @@ func (r *userMongoRepository) FindPagination(ctx context.Context) ([]User, error
 	// todo need change default db
 	cursor, err := r.db.Client.Database("generic_db").Collection(CollectionName).Find(ctx, bson.M{})
 	if err != nil {
-		r.logger.Fatal("Failed to fetch user", zap.String("err", err.Error()))
+		r.logger.Fatal("Failed to fetch user", zap.Error(err))
 	}
 	for cursor.Next(ctx) {
 		err := cursor.Decode(&user)
 		if err != nil {
-			r.logger.Fatal("Failed to decode user", zap.String("err", err.Error()))
+			r.logger.Fatal("Failed to decode user", zap.Error(err))
 		}
 		users = append(users, user)
 	}

@@ -21,7 +21,7 @@ func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Mana
 
 	err = clientMongo.Ping(context.TODO(), nil)
 	if err != nil {
-		logger.Fatal("Failed to connect database", zap.String("err", err.Error()))
+		logger.Fatal("Failed to connect database", zap.Error(err))
 		panic(err)
 	}
 	logger.Info("Database connected")
@@ -30,8 +30,4 @@ func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Mana
 		Client:   clientMongo,
 		Database: clientMongo.Database(databasName),
 	}
-}
-
-func (manager *Manager) InitDB(uri string, databaseName string) {
-
 }
