@@ -2,7 +2,7 @@ Todo
 1.healthcheck readiness
 2.golang response formatter https://adityarama1210.medium.com/create-golang-api-doc-with-swag-d73be1767d39
 3.golang keycloak
-4.golang error
+ 4.golang error
 5.golang sqs
 6.redis
 8.kafka

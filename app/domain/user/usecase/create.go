@@ -22,7 +22,7 @@ func (u *userUsecase) Create(c context.Context, dto dto.UserDtoCreateInput) (dom
 
 	res, err := u.repo.Create(ctx, user)
 	if err != nil {
-		u.logger.Error("Failed to create user", zap.Error(err))
+		u.logger.Error("Failed to create user usecase", zap.Error(err))
 		return domain.User{}, err
 	}
 	return res, nil
