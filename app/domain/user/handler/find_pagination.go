@@ -12,6 +12,7 @@ import (
 // UserFindPagination godoc
 // @Summary      Find user pagination
 // @Description  Find user pagination
+// @Security	  JWT
 // @Tags         User
 // @Produce      json
 // @Success      200  {object} response.JSONSuccessResult{data=[]domain_user.User,code=int,message=string}

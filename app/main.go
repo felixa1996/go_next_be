@@ -7,6 +7,7 @@ import (
 	"github.com/felixa1996/go_next_be/app/common"
 	. "github.com/felixa1996/go_next_be/app/common"
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"github.com/felixa1996/go_next_be/app/infra/iam"
 )
 
 func main() {
@@ -20,8 +21,10 @@ func main() {
 	// init database
 	dbManager := database.NewDatabaseManager(logger, viper.GetString("MONGODB_URI"), viper.GetString("MONGODB_DB"))
 
+	keycloakIam := iam.NewKeycloakIAM()
+
 	// init app
-	InitApp(dbManager, logger)
+	InitApp(dbManager, logger, keycloakIam)
 
 	err := common.Application.Echo.Start(":" + viper.GetString("PORT"))
 	if err != nil {

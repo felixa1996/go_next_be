@@ -16,6 +16,7 @@ import (
 // UserCreate godoc
 // @Summary      Create user
 // @Description  Create user
+// @Security	  JWT
 // @Tags         User
 // @Produce      json
 // @Param        user body domain_user_dto.UserDtoCreateInput true "User Data"
@@ -29,22 +30,22 @@ func (h *UserHandler) Create(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	var userDto dto.UserDtoCreateInput
+	var dto dto.UserDtoCreateInput
 
-	err := c.Bind(&userDto)
+	err := c.Bind(&dto)
 	if err != nil {
 		h.logger.Error("Failed to process payload create user", zap.Error(err))
 		return response.FailResponse(c, http.StatusUnprocessableEntity, "Failed to process payload", err.Error())
 	}
 
-	err = h.validate.Struct(userDto)
+	err = h.validate.Struct(dto)
 	if err != nil {
 		localizedErr := validator.TranslateError(err, h.translator)
 		h.logger.Error("Failed to validate create user", zap.Error(err))
 		return response.FailResponse(c, http.StatusUnprocessableEntity, "Failed to process entity", localizedErr)
 	}
 
-	res, err := h.usecase.Create(ctx, userDto)
+	res, err := h.usecase.Create(ctx, dto)
 	if err != nil && errors.As(err, &ew) {
 		h.logger.Error("Failed to create user", zap.Error(err))
 		return response.FailResponse(c, ew.Code, ew.Message, ew.Err.Error())

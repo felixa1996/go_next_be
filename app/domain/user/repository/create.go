@@ -13,7 +13,7 @@ import (
 
 func (r *userMongoRepository) Create(ctx context.Context, user domain.User) (domain.User, error) {
 	_, err := r.db.Database.Collection(domain.CollectionName).InsertOne(context.TODO(), user)
-	if err == nil {
+	if err != nil {
 		r.logger.Error("Failed to create user repository", zap.Error(err))
 		return domain.User{}, NewErrorWrapper(http.StatusInternalServerError, err, "Failed to create user repository")
 	}

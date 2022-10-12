@@ -10,3 +10,7 @@ type UserDtoCreateOutput struct {
 	Name   string `json:"name"`
 	Author string `json:"author"`
 }
+
+type UserDtoDeleteInput struct {
+	Id string `validate:"required"`
+}

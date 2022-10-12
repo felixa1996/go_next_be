@@ -1,8 +1,6 @@
 Todo
 1.healthcheck readiness
-2.golang response formatter https://adityarama1210.medium.com/create-golang-api-doc-with-swag-d73be1767d39
-3.golang keycloak
- 4.golang error
+3.golang keycloak https://levelup.gitconnected.com/building-micro-services-in-go-using-keycloak-for-authorisation-e00a29b80a43
 5.golang sqs
 6.redis
 8.kafka
@@ -26,3 +24,12 @@ Husky
 Swagger
 1. add alias in zsh alias swag='$(go env GOPATH)/bin/swag'
 swag init -g app/common/app.go --output docs
+
+Build in
+1.Error wrapper
+2.Swagger
+3.APM
+4.Linter
+5.Husky
+6.Live reload + air
+7.keycloak IAM

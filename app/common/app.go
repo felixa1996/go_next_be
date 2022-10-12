@@ -11,10 +11,13 @@ import (
 	"go.elastic.co/apm/module/apmechov4"
 	"go.uber.org/zap"
 
-	domain_user_handler "github.com/felixa1996/go_next_be/app/domain/user/handler"
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"github.com/felixa1996/go_next_be/app/infra/iam"
+	custom_middleware "github.com/felixa1996/go_next_be/app/infra/middleware"
 	"github.com/felixa1996/go_next_be/app/infra/validator"
 	_ "github.com/felixa1996/go_next_be/docs"
+
+	domain_user_handler "github.com/felixa1996/go_next_be/app/domain/user/handler"
 )
 
 var (
@@ -27,6 +30,7 @@ type App struct {
 	dbManager database.Manager
 	logger    *zap.Logger
 	validator.Validator
+	keycloakIAM iam.KeycloakIAM
 }
 
 // @title Go Next BE API
@@ -42,10 +46,16 @@ type App struct {
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host localhost:3000
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
 // @BasePath /
 // @schemes http
-func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
+func InitApp(dbManager database.Manager, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
+
 	e := echo.New()
+	e.HideBanner = true
+
 	e.Use(apmechov4.Middleware())
 	e.Use(middleware.CORS())
 
@@ -53,10 +63,11 @@ func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 
 	appSingleton.Do(func() {
 		Application = &App{
-			Echo:      e,
-			dbManager: dbManager,
-			logger:    logger,
-			Validator: *validator.InitValidator(),
+			Echo:        e,
+			dbManager:   dbManager,
+			logger:      logger,
+			Validator:   *validator.InitValidator(),
+			keycloakIAM: keycloakIam,
 		}
 		Application.RegisterHandlers()
 	})
@@ -66,10 +77,8 @@ func InitApp(dbManager database.Manager, logger *zap.Logger) *App {
 
 // Register REST handler
 func (app *App) RegisterHandlers() {
-	// init validate
-
 	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
 
-	user := app.Echo.Group("/v1/user")
+	user := app.Echo.Group("/v1/user", custom_middleware.KeycloakValidateJwt(app.keycloakIAM))
 	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
 }
