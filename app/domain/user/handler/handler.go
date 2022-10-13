@@ -34,5 +34,6 @@ func RegisterUserHandler(db database.Manager, logger *zap.Logger, validate *vali
 
 	group.GET("", handler.FindPagination)
 	group.POST("", handler.Create)
+	group.GET("/:id", handler.FindOne)
 	group.DELETE("/:id", handler.Delete)
 }

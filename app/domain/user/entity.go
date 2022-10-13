@@ -19,6 +19,7 @@ type UserUsecaseContract interface {
 	FindPagination(context.Context) ([]User, error)
 	Create(context.Context, dto.UserDtoCreateInput) (User, error)
 	Delete(context.Context, dto.UserDtoDeleteInput) error
+	FindOne(context.Context, dto.UserDtoFindOneInput) (User, error)
 }
 
 // UserRepository represent repository contract
@@ -26,4 +27,5 @@ type UserRepository interface {
 	FindPagination(context.Context) ([]User, error)
 	Create(context.Context, User) (User, error)
 	Delete(context.Context, string) error
+	FindOne(context.Context, string) (User, error)
 }

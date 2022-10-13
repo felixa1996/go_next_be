@@ -14,3 +14,7 @@ type UserDtoCreateOutput struct {
 type UserDtoDeleteInput struct {
 	Id string `validate:"required"`
 }
+
+type UserDtoFindOneInput struct {
+	Id string `validate:"required"`
+}
