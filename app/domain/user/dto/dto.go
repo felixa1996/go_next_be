@@ -18,3 +18,11 @@ type UserDtoDeleteInput struct {
 type UserDtoFindOneInput struct {
 	Id string `validate:"required"`
 }
+
+type UserDtoUpdateParamInput struct {
+	Id string `validate:"required"`
+}
+type UserDtoUpdateInput struct {
+	Name   string `validate:"required,min=4,max=15"`
+	Author string `validate:"required,min=4,max=15"`
+}

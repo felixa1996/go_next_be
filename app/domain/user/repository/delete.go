@@ -13,7 +13,13 @@ import (
 )
 
 func (r *userMongoRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.db.Database.Collection(domain.CollectionName).DeleteOne(context.TODO(), bson.M{"id": id})
+	// check if user exists
+	_, err := r.FindOne(context.TODO(), id)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Database.Collection(domain.CollectionName).DeleteOne(context.TODO(), bson.M{"id": id})
 	if err != nil {
 		r.logger.Error("Failed to delete user repository", zap.Error(err))
 		return NewErrorWrapper(http.StatusInternalServerError, err, "Failed to delete user repository")

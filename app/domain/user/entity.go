@@ -20,6 +20,7 @@ type UserUsecaseContract interface {
 	Create(context.Context, dto.UserDtoCreateInput) (User, error)
 	Delete(context.Context, dto.UserDtoDeleteInput) error
 	FindOne(context.Context, dto.UserDtoFindOneInput) (User, error)
+	Update(context.Context, dto.UserDtoUpdateParamInput, dto.UserDtoUpdateInput) (User, error)
 }
 
 // UserRepository represent repository contract
@@ -28,4 +29,5 @@ type UserRepository interface {
 	Create(context.Context, User) (User, error)
 	Delete(context.Context, string) error
 	FindOne(context.Context, string) (User, error)
+	Update(context.Context, User) (User, error)
 }
