@@ -12,7 +12,7 @@ type Manager struct {
 	Database *mongo.Database
 }
 
-func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Manager {
+func NewDatabaseManager(logger *zap.Logger, uri string, databaseName string) Manager {
 	clientMongo, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -26,6 +26,6 @@ func NewDatabaseManager(logger *zap.Logger, uri string, databasName string) Mana
 	logger.Info("Database connected")
 
 	return Manager{
-		Database: clientMongo.Database(databasName),
+		Database: clientMongo.Database(databaseName),
 	}
 }

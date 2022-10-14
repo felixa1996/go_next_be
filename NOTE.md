@@ -1,10 +1,10 @@
 Todo
 1.healthcheck readiness
-3.golang keycloak https://levelup.gitconnected.com/building-micro-services-in-go-using-keycloak-for-authorisation-e00a29b80a43
 5.golang sqs
 6.redis
 8.kafka
 11.testing
+12.DI
 
 Cmd:
 golangci-lint run

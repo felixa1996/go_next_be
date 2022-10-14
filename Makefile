@@ -15,10 +15,21 @@ clean:
 	rm ${BINARY_NAME}-windows
 
 test:
-	go test ./...
+	# go test ./...
+	go test -v -race -covermode=atomic -coverprofile coverage.out ./...
 
 lint:
 	golangci-lint run ./...
 
 oas:
 	swag init -g app/common/app.go --output docs
+
+test-coverage:
+	go test -race -covermode=atomic ./... -coverpkg=./... -coverprofile coverage/coverage.out
+	go tool cover -html coverage/coverage.out -o coverage/coverage.html
+	# open coverage/coverage.html
+
+test-coverage-verbose:
+	go test -v -race -covermode=atomic ./... -coverpkg=./... -coverprofile coverage/coverage.out
+	go tool cover -html coverage/coverage.out -o coverage/coverage.html
+	# open coverage/coverage.html
