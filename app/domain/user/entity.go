@@ -9,7 +9,7 @@ import (
 const CollectionName = "user"
 
 type User struct {
-	Id     string `bson:"id" json:"id"`
+	Id     string `bson:"id,omitempty" json:"id"`
 	Name   string `bson:"name" json:"name"`
 	Author string `bson:"author,omitempty" json:"author"`
 }

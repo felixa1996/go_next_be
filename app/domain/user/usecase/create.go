@@ -10,8 +10,7 @@ import (
 )
 
 func (u *userUsecase) Create(c context.Context, dto dto.UserDtoCreateInput) (domain.User, error) {
-	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
-	defer cancel()
+	ctx := context.TODO()
 
 	user := domain.User{
 		Id:     uuid.NewString(),
