@@ -30,8 +30,9 @@ docs/
 
 # End of https://www.toptal.com/developers/gitignore/api/go
 
-# Local environment
-.env
+# Env
+.env.*
+!.env.example
 
 # Swag generated files
 docs/
