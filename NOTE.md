@@ -1,10 +1,10 @@
 Todo
 1.healthcheck readiness
-5.golang sqs
 6.redis
-8.kafka
 11.testing
 12.DI
+
+Check todo
 
 Cmd:
 golangci-lint run
@@ -33,3 +33,4 @@ Build in
 5.Husky
 6.Live reload + air
 7.keycloak IAM
+8.Golang sqs

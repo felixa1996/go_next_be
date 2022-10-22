@@ -20,6 +20,7 @@ func NewKeycloakIAM() KeycloakIAM {
 
 	client := gocloak.NewClient(host)
 
+	// todo make env more verbose
 	return KeycloakIAM{
 		Client:       client,
 		host:         host,

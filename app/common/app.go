@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
@@ -17,6 +18,7 @@ import (
 	"github.com/felixa1996/go_next_be/app/infra/validator"
 	_ "github.com/felixa1996/go_next_be/docs"
 
+	domain_company_handler "github.com/felixa1996/go_next_be/app/domain/company/handler"
 	domain_user_handler "github.com/felixa1996/go_next_be/app/domain/user/handler"
 )
 
@@ -28,6 +30,7 @@ var (
 type App struct {
 	Echo      *echo.Echo
 	dbManager database.Manager
+	sqs       *sqs.SQS
 	logger    *zap.Logger
 	validator.Validator
 	keycloakIAM iam.KeycloakIAM
@@ -51,7 +54,7 @@ type App struct {
 // @name Authorization
 // @BasePath /
 // @schemes http
-func InitApp(dbManager database.Manager, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
+func InitApp(dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
 
 	e := echo.New()
 	e.HideBanner = true
@@ -65,11 +68,13 @@ func InitApp(dbManager database.Manager, logger *zap.Logger, keycloakIam iam.Key
 		Application = &App{
 			Echo:        e,
 			dbManager:   dbManager,
+			sqs:         sqs,
 			logger:      logger,
 			Validator:   *validator.InitValidator(),
 			keycloakIAM: keycloakIam,
 		}
 		Application.RegisterHandlers()
+		Application.RegisterEventHandlers()
 	})
 
 	return Application
@@ -81,4 +86,11 @@ func (app *App) RegisterHandlers() {
 
 	user := app.Echo.Group("/v1/user", custom_middleware.KeycloakValidateJwt(app.keycloakIAM))
 	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
+}
+
+// Register Event Handler
+func (app *App) RegisterEventHandlers() {
+	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
+
+	domain_company_handler.RegisterCompanyEventHandler(app.dbManager, app.sqs, app.logger, app.Validate, app.Translator, contextTimeout)
 }

@@ -38,7 +38,6 @@ func setupTestEnv(t *testing.T) (faker.Faker, *zap.Logger) {
 }
 
 func TestUserCreate(t *testing.T) {
-	t.Parallel()
 	fake, logger := setupTestEnv(t)
 
 	const GENERATED_ID = "31313131-3131-4131-b131-313131313131"
@@ -67,7 +66,7 @@ func TestUserCreate(t *testing.T) {
 		// 		Name:   data.Name,
 		// 		Author: data.Author,
 		// 	},
-		// 	CreateResponse:     nil,
+		// 	CreateResponse:     data,
 		// 	DataError:          errors.New("failed to create user"),
 		// 	ExpectErrorReponse: errors.New("failed to create user"),
 		// },
@@ -76,7 +75,7 @@ func TestUserCreate(t *testing.T) {
 	for _, tc := range usecaseStruct {
 		mockRepo := new(mocks.UserRepository)
 		if tc.ExpectErrorReponse != nil {
-			mockRepo.On("Create", context.TODO(), tc.ExpectErrorReponse).Return(nil, tc.DataError)
+			mockRepo.On("Create", context.TODO(), tc.CreateResponse).Return(tc.CreateResponse, tc.DataError)
 		} else {
 			mockRepo.On("Create", context.TODO(), tc.CreateResponse).Return(tc.CreateResponse, nil)
 		}
@@ -90,6 +89,7 @@ func TestUserCreate(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.ExpectSuccessReponse, res, tc.Message)
+			mockRepo.AssertExpectations(t)
 		})
 	}
 
