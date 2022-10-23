@@ -15,13 +15,17 @@ import (
 func (r *companyMongoRepository) Upsert(ctx context.Context, company domain.Company) (domain.Company, error) {
 	var companyFind domain.Company
 	err := r.db.Database.Collection(domain.CollectionName).FindOne(context.TODO(), bson.M{"id": company.Id}).Decode(&companyFind)
+	if err != nil {
+		r.logger.Info("Company not found", zap.String("companyId", company.Id))
+	}
 
 	if len(companyFind.Id) > 0 {
-		update := bson.D{{Name: "$set",
-			Value: bson.D{
-				{Name: "company_name", Value: company.CompanyName},
+		update := bson.M{
+			"$set": bson.M{
+				"company_name": company.CompanyName,
+				"fieldbool":    false,
 			},
-		}}
+		}
 		r.logger.Info("Update company", zap.String("companyId", companyFind.Id))
 		_, err = r.db.Database.Collection(domain.CollectionName).UpdateOne(context.TODO(), bson.M{"id": company.Id}, update)
 		if err != nil {

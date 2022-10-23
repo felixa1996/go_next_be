@@ -3,11 +3,14 @@ package message
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"go.uber.org/zap"
 )
 
-// todo create single struct contains url and message
-// *sqs.Message
+type SqsIncomingMessage struct {
+	QueueUrl string
+	Message  *sqs.Message
+}
 
 func NewSqs(logger *zap.Logger) (*session.Session, error) {
 	sess, err := session.NewSession(&aws.Config{

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (u *companyUsecase) Upsert(c context.Context, dto dto.CompanyDtoUpsert) (domain.Company, error) {
+func (u *companyUsecase) Upsert(c context.Context, dto dto.CompanyDtoUpsert) error {
 	ctx := context.TODO()
 
 	u.logger.Info("Processing upsert company usecase", zap.Any("Object", dto))
@@ -17,11 +17,11 @@ func (u *companyUsecase) Upsert(c context.Context, dto dto.CompanyDtoUpsert) (do
 		CompanyName: dto.CompanyName,
 	}
 
-	res, err := u.repo.Upsert(ctx, company)
+	_, err := u.repo.Upsert(ctx, company)
 	if err != nil {
 		u.logger.Error("Failed to upsert company usecase", zap.Error(err))
-		return domain.Company{}, err
+		return err
 	}
 	u.logger.Info("Success upsert company usecase", zap.Any("Object", dto))
-	return res, nil
+	return nil
 }

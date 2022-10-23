@@ -8,8 +8,6 @@ import (
 
 const (
 	CollectionName = "company"
-	// todo need to env
-	UpsertQueueUrl = "https://sqs.us-east-1.amazonaws.com/065561208089/test_sqs_data.fifo"
 )
 
 type Company struct {
@@ -19,8 +17,7 @@ type Company struct {
 
 // CompanyUsecaseContract repersent usecase contract tied with user domain
 type CompanyUsecaseContract interface {
-	// todo need remove company
-	Upsert(context.Context, dto.CompanyDtoUpsert) (Company, error)
+	Upsert(context.Context, dto.CompanyDtoUpsert) error
 }
 
 // CompanyRepository represent repository contract

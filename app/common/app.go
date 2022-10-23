@@ -7,11 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/spf13/viper"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.elastic.co/apm/module/apmechov4"
 	"go.uber.org/zap"
 
+	"github.com/felixa1996/go_next_be/app/config"
 	"github.com/felixa1996/go_next_be/app/infra/database"
 	"github.com/felixa1996/go_next_be/app/infra/iam"
 	custom_middleware "github.com/felixa1996/go_next_be/app/infra/middleware"
@@ -28,6 +28,7 @@ var (
 )
 
 type App struct {
+	Config    *config.Config
 	Echo      *echo.Echo
 	dbManager database.Manager
 	sqs       *sqs.SQS
@@ -54,7 +55,7 @@ type App struct {
 // @name Authorization
 // @BasePath /
 // @schemes http
-func InitApp(dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
+func InitApp(config config.Config, dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
 
 	e := echo.New()
 	e.HideBanner = true
@@ -66,6 +67,7 @@ func InitApp(dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycl
 
 	appSingleton.Do(func() {
 		Application = &App{
+			Config:      &config,
 			Echo:        e,
 			dbManager:   dbManager,
 			sqs:         sqs,
@@ -82,7 +84,7 @@ func InitApp(dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycl
 
 // Register REST handler
 func (app *App) RegisterHandlers() {
-	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
+	contextTimeout := time.Duration(app.Config.Timeout) * time.Second
 
 	user := app.Echo.Group("/v1/user", custom_middleware.KeycloakValidateJwt(app.keycloakIAM))
 	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
@@ -90,7 +92,7 @@ func (app *App) RegisterHandlers() {
 
 // Register Event Handler
 func (app *App) RegisterEventHandlers() {
-	contextTimeout := time.Duration(viper.GetInt("TIMEOUT")) * time.Second
+	contextTimeout := time.Duration(app.Config.Timeout) * time.Second
 
-	domain_company_handler.RegisterCompanyEventHandler(app.dbManager, app.sqs, app.logger, app.Validate, app.Translator, contextTimeout)
+	domain_company_handler.RegisterCompanyEventHandler(app.Config, app.dbManager, app.sqs, app.logger, app.Validate, app.Translator, contextTimeout)
 }

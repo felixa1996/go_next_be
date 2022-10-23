@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Nerzal/gocloak/v11"
-	"github.com/spf13/viper"
+	"github.com/felixa1996/go_next_be/app/config"
 )
 
 type KeycloakIAM struct {
@@ -15,18 +15,15 @@ type KeycloakIAM struct {
 	realm        string
 }
 
-func NewKeycloakIAM() KeycloakIAM {
-	host := viper.GetString("HOST")
+func NewKeycloakIAM(config config.Config) KeycloakIAM {
+	client := gocloak.NewClient(config.KeycloakHost)
 
-	client := gocloak.NewClient(host)
-
-	// todo make env more verbose
 	return KeycloakIAM{
 		Client:       client,
-		host:         host,
-		clientId:     viper.GetString("CLIENT_ID"),
-		clientSecret: viper.GetString("CLIENT_SECRET"),
-		realm:        viper.GetString("REALM"),
+		host:         config.KeycloakHost,
+		clientId:     config.KeycloakClientId,
+		clientSecret: config.KeycloakClientSecret,
+		realm:        config.KeycloakRealm,
 	}
 }
 
