@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -14,6 +14,7 @@ import (
 	"github.com/felixa1996/go_next_be/app/config"
 	"github.com/felixa1996/go_next_be/app/infra/database"
 	"github.com/felixa1996/go_next_be/app/infra/iam"
+	"github.com/felixa1996/go_next_be/app/infra/message"
 	custom_middleware "github.com/felixa1996/go_next_be/app/infra/middleware"
 	"github.com/felixa1996/go_next_be/app/infra/validator"
 	_ "github.com/felixa1996/go_next_be/docs"
@@ -23,16 +24,16 @@ import (
 )
 
 var (
-	Application  *App
-	appSingleton sync.Once
+	Application *App
+	once        sync.Once
 )
 
 type App struct {
-	Config    *config.Config
-	Echo      *echo.Echo
-	dbManager database.Manager
-	sqs       *sqs.SQS
-	logger    *zap.Logger
+	Config     *config.Config
+	Echo       *echo.Echo
+	dbManager  database.Manager
+	sqsWrapper message.SqsWrapper
+	logger     *zap.Logger
 	validator.Validator
 	keycloakIAM iam.KeycloakIAM
 }
@@ -55,7 +56,10 @@ type App struct {
 // @name Authorization
 // @BasePath /
 // @schemes http
-func InitApp(config config.Config, dbManager database.Manager, sqs *sqs.SQS, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
+func InitApp(config config.Config, dbManager database.Manager, sess *session.Session, logger *zap.Logger, keycloakIam iam.KeycloakIAM) *App {
+
+	// sqs
+	sqsWrapper := message.NewSqsWrapper(logger, sess)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -65,12 +69,12 @@ func InitApp(config config.Config, dbManager database.Manager, sqs *sqs.SQS, log
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	appSingleton.Do(func() {
+	once.Do(func() {
 		Application = &App{
 			Config:      &config,
 			Echo:        e,
 			dbManager:   dbManager,
-			sqs:         sqs,
+			sqsWrapper:  sqsWrapper,
 			logger:      logger,
 			Validator:   *validator.InitValidator(),
 			keycloakIAM: keycloakIam,
@@ -94,5 +98,5 @@ func (app *App) RegisterHandlers() {
 func (app *App) RegisterEventHandlers() {
 	contextTimeout := time.Duration(app.Config.Timeout) * time.Second
 
-	domain_company_handler.RegisterCompanyEventHandler(app.Config, app.dbManager, app.sqs, app.logger, app.Validate, app.Translator, contextTimeout)
+	domain_company_handler.RegisterCompanyEventHandler(app.Config, app.dbManager, app.sqsWrapper, app.logger, app.Validate, app.Translator, contextTimeout)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	domain_company "github.com/felixa1996/go_next_be/app/domain/company"
 	dto "github.com/felixa1996/go_next_be/app/domain/company/dto"
@@ -13,8 +12,12 @@ import (
 )
 
 func (h *CompanyHandler) Upsert() {
+	queueUrl := h.config.SqsCompanyUpsertUrl
+	maxNumberMessage := h.config.SqsCompanyUpsertMaxNumberMessage
+	waitTimeout := h.config.SqsCompanyWaitTimeOutSeconds
+
 	chnMessages := make(chan *sqs.Message, 2)
-	go h.pollMessages(chnMessages)
+	go h.sqsWrapper.PollMessages(queueUrl, maxNumberMessage, waitTimeout, chnMessages)
 
 	for chnMessage := range chnMessages {
 		msg := message.SqsIncomingMessage{
@@ -25,7 +28,7 @@ func (h *CompanyHandler) Upsert() {
 		if err != nil {
 			continue
 		}
-		h.deleteMessage(msg)
+		h.sqsWrapper.DeleteMessage(queueUrl, msg.Message)
 	}
 }
 
@@ -39,7 +42,7 @@ func (h *CompanyHandler) handleMessage(msg message.SqsIncomingMessage) error {
 			zap.String("ReceiptHandle", *msg.Message.ReceiptHandle),
 			zap.String("MessageBody", *msg.Message.Body),
 			zap.Error(err))
-		h.deleteMessage(msg)
+		h.sqsWrapper.DeleteMessage(msg.QueueUrl, msg.Message)
 		return err
 	}
 
@@ -64,28 +67,4 @@ func (h *CompanyHandler) handleMessage(msg message.SqsIncomingMessage) error {
 		return err
 	}
 	return nil
-}
-
-func (h *CompanyHandler) pollMessages(chn chan<- *sqs.Message) {
-
-	for {
-		output, err := h.sqs.ReceiveMessage(&sqs.ReceiveMessageInput{
-			QueueUrl:            aws.String(h.config.SqsCompanyUpsertUrl),
-			MaxNumberOfMessages: aws.Int64(h.config.SqsCompanyUpsertMaxNumberMessage),
-			WaitTimeSeconds:     aws.Int64(h.config.SqsCompanyWaitTimeOutSeconds),
-		})
-
-		if err != nil {
-			h.logger.Error("Failed to fetch sqs message",
-				zap.String("QueueUrl", h.config.SqsCompanyUpsertUrl),
-				zap.Error(err),
-			)
-		}
-
-		for _, message := range output.Messages {
-			chn <- message
-		}
-
-	}
-
 }

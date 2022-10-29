@@ -4,8 +4,6 @@ Todo
 11.testing
 12.DI
 
-Check todo
-
 Cmd:
 golangci-lint run
 go test -cover -coverprofile coverage.out ./...    

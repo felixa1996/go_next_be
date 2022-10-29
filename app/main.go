@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 
 	"go.uber.org/zap"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/felixa1996/go_next_be/app/config"
 	"github.com/felixa1996/go_next_be/app/infra/database"
 	"github.com/felixa1996/go_next_be/app/infra/iam"
-	"github.com/felixa1996/go_next_be/app/infra/message"
 )
 
 func main() {
@@ -27,11 +27,12 @@ func main() {
 	keycloakIam := iam.NewKeycloakIAM(config)
 
 	// init sqs
-	sqsSession, _ := message.NewSqs(logger)
-	sqsSvc := sqs.New(sqsSession)
+	sess, _ := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1"),
+	})
 
 	// init app
-	InitApp(config, dbManager, sqsSvc, logger, keycloakIam)
+	InitApp(config, dbManager, sess, logger, keycloakIam)
 
 	err := common.Application.Echo.Start(":" + config.Port)
 	if err != nil {
