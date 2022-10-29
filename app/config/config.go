@@ -4,10 +4,11 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	// App
-	AppName string `mapstructure:"APP_NAME"`
-	Port    string `mapstructure:"PORT"`
-	Timeout int    `mapstructure:"TIMEOUT"`
-	Debug   bool   `mapstructure:"DEBUG"`
+	AppName   string `mapstructure:"APP_NAME"`
+	Port      string `mapstructure:"PORT"`
+	Timeout   int    `mapstructure:"TIMEOUT"`
+	Debug     bool   `mapstructure:"DEBUG"`
+	TraceType string `mapstructure:"TRACE_TYPE"`
 	// Keycloak
 	KeycloakHost         string `mapstructure:"KEYCLOAK_HOST"`
 	KeycloakRealm        string `mapstructure:"KEYCLOAK_REALM"`
@@ -16,6 +17,8 @@ type Config struct {
 	// Database
 	MongoUri string `mapstructure:"MONGODB_URI"`
 	MongoDB  string `mapstructure:"MONGODB_DB"`
+	// Newrelic
+	NewrelicLicenseKey string `mapstructure:"NEWRELIC_LICENSEKEY"`
 	// Sqs
 	// Upsert Company Queue
 	SqsCompanyUpsertUrl              string `mapstructure:"SQS_COMPANY_UPSERT_URL"`

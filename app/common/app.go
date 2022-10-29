@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.elastic.co/apm/module/apmechov4"
 	"go.uber.org/zap"
@@ -16,6 +17,7 @@ import (
 	"github.com/felixa1996/go_next_be/app/infra/iam"
 	"github.com/felixa1996/go_next_be/app/infra/message"
 	custom_middleware "github.com/felixa1996/go_next_be/app/infra/middleware"
+	"github.com/felixa1996/go_next_be/app/infra/tracer"
 	"github.com/felixa1996/go_next_be/app/infra/validator"
 	_ "github.com/felixa1996/go_next_be/docs"
 
@@ -60,9 +62,16 @@ func InitApp(config config.Config, dbManager database.Manager, sess *session.Ses
 
 	// sqs
 	sqsWrapper := message.NewSqsWrapper(logger, sess)
-
 	e := echo.New()
 	e.HideBanner = true
+
+	switch traceType := config.TraceType; traceType {
+	case "newrelic":
+		newRelicApp := tracer.NewRelicTracer(config)
+		e.Use(nrecho.Middleware(newRelicApp))
+	case "elk":
+		e.Use(apmechov4.Middleware())
+	}
 
 	e.Use(apmechov4.Middleware())
 	e.Use(middleware.CORS())
@@ -80,7 +89,8 @@ func InitApp(config config.Config, dbManager database.Manager, sess *session.Ses
 			keycloakIAM: keycloakIam,
 		}
 		Application.RegisterHandlers()
-		Application.RegisterEventHandlers()
+		// Register as go routine so it can block the main thread
+		go Application.RegisterEventHandlers()
 	})
 
 	return Application
@@ -92,6 +102,8 @@ func (app *App) RegisterHandlers() {
 
 	user := app.Echo.Group("/v1/user", custom_middleware.KeycloakValidateJwt(app.keycloakIAM))
 	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
+
+	app.logger.Info("Successfully register REST handler")
 }
 
 // Register Event Handler
@@ -99,4 +111,6 @@ func (app *App) RegisterEventHandlers() {
 	contextTimeout := time.Duration(app.Config.Timeout) * time.Second
 
 	domain_company_handler.RegisterCompanyEventHandler(app.Config, app.dbManager, app.sqsWrapper, app.logger, app.Validate, app.Translator, contextTimeout)
+
+	app.logger.Info("Successfully register Event handler")
 }
