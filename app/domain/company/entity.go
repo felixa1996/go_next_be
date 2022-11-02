@@ -10,17 +10,19 @@ const (
 	CollectionName = "company"
 )
 
-type Company struct {
-	Id          string `bson:"id,omitempty" json:"id"`
-	CompanyName string `bson:"company_name" json:"company_name"`
-}
+type (
+	Company struct {
+		Id          string `bson:"id,omitempty" json:"id"`
+		CompanyName string `bson:"company_name" json:"company_name"`
+	}
 
-// CompanyUsecaseContract repersent usecase contract tied with user domain
-type CompanyUsecaseContract interface {
-	Upsert(context.Context, dto.CompanyDtoUpsert) error
-}
+	// CompanyUsecaseContract repersent usecase contract tied with user domain
+	CompanyUsecaseContract interface {
+		Upsert(context.Context, dto.CompanyDtoUpsert) error
+	}
 
-// CompanyRepository represent repository contract
-type CompanyRepository interface {
-	Upsert(context.Context, Company) (Company, error)
-}
+	// CompanyRepository represent repository contract
+	CompanyRepository interface {
+		Upsert(context.Context, Company) (Company, error)
+	}
+)

@@ -19,6 +19,12 @@ type Config struct {
 	MongoDB  string `mapstructure:"MONGODB_DB"`
 	// Newrelic
 	NewrelicLicenseKey string `mapstructure:"NEWRELIC_LICENSEKEY"`
+	// Minio
+	MinioEndpoint        string `mapstructure:"MINIO_ENDPOINT"`
+	MinioAccessKey       string `mapstructure:"MINIO_ACCESS_KEY"`
+	MinioSecretAccessKey string `mapstructure:"MINIO_SECRET_ACCESS_KEY"`
+	MinioSSL             bool   `mapstructure:"MINIO_SSL"`
+	MinioBaseUrl         string `mapstructure:"MINIO_BASE_URL"`
 	// Sqs
 	// Upsert Company Queue
 	SqsCompanyUpsertUrl              string `mapstructure:"SQS_COMPANY_UPSERT_URL"`
