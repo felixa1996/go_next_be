@@ -1,8 +1,9 @@
 Todo
 1.healthcheck readiness
-6.redis
-11.testing
-12.DI
+2.redis
+3.testing
+4.DI
+6.Golang compress image https://github.com/nfnt/resize
 
 Cmd:
 golangci-lint run
@@ -11,7 +12,6 @@ go tool cover -func=coverage.out
 go tool cover -html=coverage.out
 
 Air
-
 
 Husky
 1.go install github.com/automation-co/husky@latest

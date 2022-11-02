@@ -21,7 +21,7 @@ import (
 // @Tags         User
 // @Produce      json
 // @Param        id 	 path string true "User Id"
-// @Success      200  {object}  response.JSONSuccessResult{data=domain.User,code=int,message=string}
+// @Success      200  {object}  response.JSONSuccessResult{data=domain_user.User,code=int,message=string}
 // @Failure      400  {object}  response.JSONBadRequest{code=int,message=string}
 // @Failure      500  {object}  response.JSONInternalServerError{code=int,message=string}
 // @Router       /v1/user/{id}  [get]
