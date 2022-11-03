@@ -2,7 +2,6 @@ Todo
 1.healthcheck readiness
 2.redis
 3.testing
-4.DI
 6.Golang compress image https://github.com/nfnt/resize
 
 Cmd:
@@ -26,9 +25,12 @@ swag init -g app/common/app.go --output docs
 Build in
 1.Error wrapper
 2.Swagger
-3.APM
+3.APM (ELK / Newrelic)
 4.Linter
 5.Husky
 6.Live reload + air
 7.keycloak IAM
 8.Golang sqs
+9.Minio
+10.Docker compose
+11.Liveness Readiness Probe

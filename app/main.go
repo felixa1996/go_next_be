@@ -10,6 +10,7 @@ import (
 	. "github.com/felixa1996/go_next_be/app/common"
 	"github.com/felixa1996/go_next_be/app/config"
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"github.com/felixa1996/go_next_be/app/infra/healthcheck"
 	"github.com/felixa1996/go_next_be/app/infra/iam"
 	"github.com/felixa1996/go_next_be/app/infra/uploader"
 )
@@ -28,9 +29,15 @@ func main() {
 	keycloakIam := iam.NewKeycloakIAM(config)
 
 	// init sqs
-	sess, _ := session.NewSession(&aws.Config{
+	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1"),
 	})
+	if err != nil {
+		healthcheck.SetAwsSessionReadiness(false)
+		logger.Fatal("Failed to initialize aws session", zap.Error(err))
+		panic(err)
+	}
+	healthcheck.SetAwsSessionReadiness(true)
 
 	// init minio
 	minio := uploader.NewMinioWrapper(config, logger)
@@ -38,7 +45,7 @@ func main() {
 	// init app
 	InitApp(config, dbManager, sess, minio, logger, keycloakIam)
 
-	err := common.Application.Echo.Start(":" + config.Port)
+	err = common.Application.Echo.Start(":" + config.Port)
 	if err != nil {
 		logger.Fatal("Failed to start app", zap.Error(err))
 		panic(err)
