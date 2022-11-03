@@ -1,0 +1,37 @@
+version: '3.7'
+
+networks:
+  generic_network:
+    name: generic_network
+
+services:
+  gonextbe_service_media:
+    container_name: gonextbe_service_media
+    environment:
+      - APP_NAME=go_next_be
+      - DEBUG=false
+      - PORT=80
+      - TIMEOUT=100
+      - TRACE_TYPE=elk
+      - MONGODB_URI=mongodb://root:Katasandi2@localhost:27017/?authSource=admin
+      - MONGODB_DB=generic_db
+      - ELASTIC_APM_ACTIVE=false
+      - KEYCLOAK_CLIENT_ID=
+      - KEYCLOAK_CLIENT_SECRET=
+      - KEYCLOAK_REALM=
+      - KEYCLOAK_HOST=
+      - REDIS_URI=redis://:Katasandi2@genr_redis:6379
+      - AWS_ACCESS_KEY_ID=AKIAQ6Q6AUUMQWJCL6FX
+      - AWS_SECRET_ACCESS_KEY=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
+      - NEWRELIC_LICENSEKEY=
+      - MINIO_ENDPOINT=
+      - MINIO_ACCESS_KEY=
+      - MINIO_SECRET_ACCESS_KEY=
+      - MINIO_SSL=
+      - MINIO_BASE_URL=
+      - SQS_COMPANY_UPSERT_URL=
+      - SQS_COMPANY_UPSERT_MAX_NUMBER_MESSAGE=10
+      - SQS_COMPANY_UPSERT_WAIT_TIMEOUT=15
+    networks:
+      - generic_network
+    restart: on-failure

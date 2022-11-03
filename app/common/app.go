@@ -14,6 +14,7 @@ import (
 
 	"github.com/felixa1996/go_next_be/app/config"
 	"github.com/felixa1996/go_next_be/app/infra/database"
+	"github.com/felixa1996/go_next_be/app/infra/healthcheck"
 	"github.com/felixa1996/go_next_be/app/infra/iam"
 	"github.com/felixa1996/go_next_be/app/infra/message"
 	custom_middleware "github.com/felixa1996/go_next_be/app/infra/middleware"
@@ -79,7 +80,7 @@ func InitApp(config config.Config, dbManager database.Manager, sess *session.Ses
 	e.Use(apmechov4.Middleware())
 	e.Use(middleware.CORS())
 
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/docs/*", echoSwagger.WrapHandler)
 
 	once.Do(func() {
 		Application = &App{
@@ -103,6 +104,9 @@ func InitApp(config config.Config, dbManager database.Manager, sess *session.Ses
 // Register REST handler
 func (app *App) RegisterHandlers() {
 	contextTimeout := time.Duration(app.Config.Timeout) * time.Second
+
+	probe := app.Echo.Group("/probes")
+	healthcheck.RegisterHealthCheckHandler(app.logger, probe)
 
 	user := app.Echo.Group("/v1/user", custom_middleware.KeycloakValidateJwt(app.keycloakIAM))
 	domain_user_handler.RegisterUserHandler(app.dbManager, app.logger, app.Validate, app.Translator, contextTimeout, user)
