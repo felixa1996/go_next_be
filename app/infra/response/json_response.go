@@ -41,6 +41,26 @@ func SuccessReponse(c echo.Context, data interface{}) error {
 }
 
 // nolint
+func SuccessCreatedReponse(c echo.Context, data interface{}) error {
+	c.JSON(http.StatusCreated, JSONSuccessResult{
+		Code:    http.StatusCreated,
+		Message: "Success",
+		Data:    data,
+	})
+	return nil
+}
+
+// nolint
+func SuccessNoContentReponse(c echo.Context, data interface{}) error {
+	c.JSON(http.StatusNoContent, JSONSuccessResult{
+		Code:    http.StatusNoContent,
+		Message: "Success",
+		Data:    data,
+	})
+	return nil
+}
+
+// nolint
 func FailResponse(c echo.Context, code int, message string, data interface{}) error {
 	if code == http.StatusInternalServerError {
 		c.JSON(code, JSONInternalServerError{

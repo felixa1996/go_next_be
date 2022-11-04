@@ -1,8 +1,8 @@
 package domain_user_dto
 
 type UserDtoCreateInput struct {
-	Name   string `validate:"required,min=4,max=15"`
-	Author string `validate:"required,min=4,max=15"`
+	Name   string `validate:"required,min=4,max=225"`
+	Author string `validate:"required,min=4,max=225"`
 }
 
 type UserDtoCreateOutput struct {

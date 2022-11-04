@@ -20,7 +20,7 @@ import (
 // @Tags         User
 // @Produce      json
 // @Param        user body domain_user_dto.UserDtoCreateInput true "User Data"
-// @Success      200  {object}  response.JSONSuccessResult{data=domain_user.User,code=int,message=string}
+// @Success      201  {object}  response.JSONSuccessResult{data=domain_user.User,code=int,message=string}
 // @Failure      400  {object}  response.JSONBadRequest{code=int,message=string}
 // @Failure      422  {object}  response.JSONUnprocessableEntity{code=int,message=string}
 // @Failure      500  {object}  response.JSONInternalServerError{code=int,message=string}
@@ -51,5 +51,5 @@ func (h *UserHandler) Create(c echo.Context) error {
 		return response.FailResponse(c, ew.Code, ew.Message, ew.Err.Error())
 	}
 
-	return response.SuccessReponse(c, res)
+	return response.SuccessCreatedReponse(c, res)
 }

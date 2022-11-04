@@ -21,16 +21,20 @@ type UserHandler struct {
 	translator ut.Translator
 }
 
-func RegisterUserHandler(db database.Manager, logger *zap.Logger, validate *validator.Validate, translator ut.Translator, contextTimeout time.Duration, group *echo.Group) {
-	// init handler
-	repo := repository.NewUserMongoRepository(&db, logger)
-	usecase := usecase.NewUserUsecase(repo, logger, contextTimeout)
-	handler := &UserHandler{
+func NewUserHandler(usecase domain.UserUsecaseContract, logger *zap.Logger, validate *validator.Validate, translator ut.Translator) UserHandler {
+	return UserHandler{
 		usecase:    usecase,
 		logger:     logger,
 		validate:   validate,
 		translator: translator,
 	}
+}
+
+func RegisterUserHandler(db database.Manager, logger *zap.Logger, validate *validator.Validate, translator ut.Translator, contextTimeout time.Duration, group *echo.Group) {
+	// init handler
+	repo := repository.NewUserMongoRepository(&db, logger)
+	usecase := usecase.NewUserUsecase(repo, logger, contextTimeout)
+	handler := NewUserHandler(usecase, logger, validate, translator)
 
 	group.GET("", handler.FindPagination)
 	group.POST("", handler.Create)
