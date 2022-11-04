@@ -18,7 +18,7 @@ import (
 	mocks "github.com/felixa1996/go_next_be/mocks/app/domain/user"
 )
 
-type testStruct struct {
+type testCreateStruct struct {
 	Name                 string
 	Message              string
 	Data                 dto.UserDtoCreateInput
@@ -52,17 +52,7 @@ func TestUserCreate(t *testing.T) {
 		Author: fake.Person().FirstName(),
 	}
 
-	usecaseStruct := []testStruct{
-		{
-			Name:    "Success",
-			Message: "should success",
-			Data: dto.UserDtoCreateInput{
-				Name:   data.Name,
-				Author: data.Author,
-			},
-			CreateResponse:       data,
-			ExpectSuccessReponse: data,
-		},
+	usecaseStruct := []testCreateStruct{
 		{
 			Name:    "Failed",
 			Message: "should failed",
@@ -73,6 +63,16 @@ func TestUserCreate(t *testing.T) {
 			CreateResponse:     data,
 			DataError:          errors.New("failed to create user"),
 			ExpectErrorReponse: errors.New("failed to create user"),
+		},
+		{
+			Name:    "Success",
+			Message: "should success",
+			Data: dto.UserDtoCreateInput{
+				Name:   data.Name,
+				Author: data.Author,
+			},
+			CreateResponse:       data,
+			ExpectSuccessReponse: data,
 		},
 	}
 
