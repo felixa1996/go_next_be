@@ -21,7 +21,7 @@ import (
 // @Tags         User
 // @Produce      json
 // @Param        id 	 path string true "User Id"
-// @Success      200  {object}  response.JSONSuccessResult{code=int,message=string}
+// @Success      204  {object}  response.JSONSuccessResult{code=int,message=string}
 // @Failure      400  {object}  response.JSONBadRequest{code=int,message=string}
 // @Failure      500  {object}  response.JSONInternalServerError{code=int,message=string}
 // @Router       /v1/user/{id}  [delete]
@@ -48,5 +48,5 @@ func (h *UserHandler) Delete(c echo.Context) error {
 		return response.FailResponse(c, ew.Code, ew.Message, ew.Err.Error())
 	}
 
-	return response.SuccessReponse(c, nil)
+	return response.SuccessNoContentReponse(c, nil)
 }

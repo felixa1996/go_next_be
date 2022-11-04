@@ -3,6 +3,7 @@ package domain_user_usecase
 import (
 	"bytes"
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -28,13 +29,16 @@ type testStruct struct {
 }
 
 func setupTestEnv(t *testing.T) (faker.Faker, *zap.Logger) {
-	reader := bytes.NewReader([]byte("1111111111111111"))
-	uuid.SetRand(reader)
-	uuid.SetClockSequence(1)
 
 	fake := faker.New()
 	logger := zaptest.NewLogger(t)
 	return fake, logger
+}
+
+func setupUUID() {
+	reader := bytes.NewReader([]byte("1111111111111111"))
+	uuid.SetRand(reader)
+	uuid.SetClockSequence(1)
 }
 
 func TestUserCreate(t *testing.T) {
@@ -59,20 +63,22 @@ func TestUserCreate(t *testing.T) {
 			CreateResponse:       data,
 			ExpectSuccessReponse: data,
 		},
-		// {
-		// 	Name:    "Failed",
-		// 	Message: "should failed",
-		// 	Data: dto.UserDtoCreateInput{
-		// 		Name:   data.Name,
-		// 		Author: data.Author,
-		// 	},
-		// 	CreateResponse:     data,
-		// 	DataError:          errors.New("failed to create user"),
-		// 	ExpectErrorReponse: errors.New("failed to create user"),
-		// },
+		{
+			Name:    "Failed",
+			Message: "should failed",
+			Data: dto.UserDtoCreateInput{
+				Name:   data.Name,
+				Author: data.Author,
+			},
+			CreateResponse:     data,
+			DataError:          errors.New("failed to create user"),
+			ExpectErrorReponse: errors.New("failed to create user"),
+		},
 	}
 
 	for _, tc := range usecaseStruct {
+		setupUUID()
+
 		mockRepo := new(mocks.UserRepository)
 		if tc.ExpectErrorReponse != nil {
 			mockRepo.On("Create", context.TODO(), tc.CreateResponse).Return(tc.CreateResponse, tc.DataError)
@@ -89,24 +95,6 @@ func TestUserCreate(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.ExpectSuccessReponse, res, tc.Message)
-			mockRepo.AssertExpectations(t)
 		})
 	}
-
-	// t.Run("Success", func(y *testing.T) {
-
-	// 	mockRepo := new(mocks.UserRepository)
-	// 	mockRepo.On("Create", context.TODO(), user).Return(user, nil)
-
-	// 	a := NewUserUsecase(mockRepo, logger, time.Second*2)
-	// 	res, err := a.Create(context.TODO(), dto.UserDtoCreateInput{
-	// 		Name:   user.Name,
-	// 		Author: user.Author,
-	// 	})
-	// 	if err != nil {
-	// 		// assert.Contains(t, err.Error(), tc.ExpectErrorReponse.Error(), "Should error")
-	// 	}
-
-	// 	assert.Equal(t, user, res, "Should success")
-	// })
 }
