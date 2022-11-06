@@ -17,7 +17,7 @@ func (r *userMongoRepository) FindOne(ctx context.Context, id string) (domain.Us
 
 	err := r.db.Database.Collection(domain.CollectionName).FindOne(context.TODO(), bson.M{"id": id}).Decode(&user)
 	if err != nil {
-		r.logger.Error("User not found", zap.String("id", id))
+		r.logger.Error("User not found", zap.String("id", id), zap.Error(err))
 		return domain.User{}, NewErrorWrapper(http.StatusInternalServerError, nil, "User not found")
 	}
 

@@ -31,7 +31,7 @@ func (h *UserHandler) FindOne(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	id := c.Param("id")
-	dto := dto.UserDtoDeleteInput{
+	dto := dto.UserDtoFindOneInput{
 		Id: id,
 	}
 
@@ -42,11 +42,11 @@ func (h *UserHandler) FindOne(c echo.Context) error {
 		return response.FailResponse(c, http.StatusBadRequest, "Failed to delete user", localizedErr)
 	}
 
-	err = h.usecase.Delete(ctx, dto)
+	res, err := h.usecase.FindOne(ctx, dto)
 	if err != nil && errors.As(err, &ew) {
 		h.logger.Error("Failed to find one user", zap.Error(err))
 		return response.FailResponse(c, ew.Code, ew.Message, ew.Err.Error())
 	}
 
-	return response.SuccessReponse(c, nil)
+	return response.SuccessReponse(c, res)
 }

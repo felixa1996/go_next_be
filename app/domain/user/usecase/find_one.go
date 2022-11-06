@@ -10,8 +10,7 @@ import (
 )
 
 func (u *userUsecase) FindOne(c context.Context, dto dto.UserDtoFindOneInput) (domain.User, error) {
-	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
-	defer cancel()
+	ctx := context.TODO()
 
 	res, err := u.repo.FindOne(ctx, dto.Id)
 	if err != nil {
