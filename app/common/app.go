@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
@@ -56,7 +57,7 @@ type App struct {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:3000
+// @host localhost:3004
 // @securityDefinitions.apiKey JWT
 // @in header
 // @name Authorization
@@ -77,6 +78,9 @@ func InitApp(config config.Config, dbManager database.Manager, sess *session.Ses
 		e.Use(apmechov4.Middleware())
 	}
 
+	// Enable metrics middleware
+	p := prometheus.NewPrometheus("echo", nil)
+	p.Use(e)
 	e.Use(apmechov4.Middleware())
 	e.Use(middleware.CORS())
 

@@ -54,7 +54,7 @@ func main() {
 	go func() {
 		err = common.Application.Echo.Start(":" + config.Port)
 		if err != nil && err != http.ErrServerClosed {
-			logger.Fatal("Failed to start app", zap.Error(err))
+			logger.Fatal("F ailed to start app", zap.Error(err))
 		}
 		println(err)
 	}()
