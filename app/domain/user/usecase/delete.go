@@ -9,8 +9,7 @@ import (
 )
 
 func (u *userUsecase) Delete(c context.Context, dto dto.UserDtoDeleteInput) error {
-	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
-	defer cancel()
+	ctx := context.TODO()
 
 	err := u.repo.Delete(ctx, dto.Id)
 	if err != nil {

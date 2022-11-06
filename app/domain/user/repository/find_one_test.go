@@ -5,35 +5,25 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/jaswdr/faker"
-	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest"
 
 	domain "github.com/felixa1996/go_next_be/app/domain/user"
 	"github.com/felixa1996/go_next_be/app/infra/database"
-	mocks "github.com/felixa1996/go_next_be/mocks/app/domain/user"
+	"github.com/stretchr/testify/assert"
 )
 
-type testCreateStruct struct {
+type testFindOneStruct struct {
 	Name                 string
 	Message              string
-	Data                 domain.User
+	Data                 string
 	DataError            error
-	CreateResponse       interface{}
 	ExpectSuccessReponse domain.User
 	ExpectErrorReponse   error
 }
 
-func setupTestEnv(t *testing.T) (faker.Faker, *zap.Logger) {
-	fake := faker.New()
-	logger := zaptest.NewLogger(t)
-	return fake, logger
-}
-
-func TestUserCreateRepository(t *testing.T) {
+func TestUserFindOneRepository(t *testing.T) {
 	t.Parallel()
 	fake, logger := setupTestEnv(t)
 
@@ -43,27 +33,23 @@ func TestUserCreateRepository(t *testing.T) {
 		Author: fake.Person().FirstName(),
 	}
 
-	repoStruct := []testCreateStruct{
-		{
-			Name:                 "Success",
-			Message:              "should success",
-			Data:                 data,
-			CreateResponse:       data,
-			ExpectSuccessReponse: data,
-		},
+	repoStruct := []testFindOneStruct{
 		{
 			Name:               "Failed",
-			Message:            "should failed",
-			Data:               data,
-			DataError:          errors.New("failed to create user"),
-			ExpectErrorReponse: errors.New("failed to create user"),
+			Message:            "failed",
+			Data:               data.Id,
+			DataError:          errors.New("User not found"),
+			ExpectErrorReponse: errors.New("User not found"),
+		},
+		{
+			Name:                 "Success",
+			Message:              "success",
+			Data:                 data.Id,
+			ExpectSuccessReponse: data,
 		},
 	}
 
 	for _, tc := range repoStruct {
-		mockRepository := new(mocks.UserRepository)
-		mockRepository.On("Create", tc.Data).Return(tc.CreateResponse)
-
 		mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
 		defer mt.Close()
 
@@ -73,20 +59,22 @@ func TestUserCreateRepository(t *testing.T) {
 					Message: tc.DataError.Error(),
 				}))
 			} else {
-				t.AddMockResponses(mtest.CreateSuccessResponse(
-					primitive.E{Key: "Id", Value: tc.Data.Id},
-					primitive.E{Key: "Name", Value: tc.Data.Name},
-					primitive.E{Key: "Author", Value: tc.Data.Author},
-				))
+				find := mtest.CreateCursorResponse(1, "dbName."+domain.CollectionName, mtest.FirstBatch, bson.D{
+					primitive.E{Key: "Id", Value: data.Id},
+					primitive.E{Key: "Name", Value: data.Name},
+					primitive.E{Key: "Author", Value: data.Author},
+				})
+				t.AddMockResponses(find)
 			}
 
 			databaseManager := &database.Manager{
 				Database: t.DB,
 			}
 			repo := NewUserMongoRepository(databaseManager, logger)
-			res, err := repo.Create(context.TODO(), tc.Data)
+			res, err := repo.FindOne(context.TODO(), tc.Data)
 
 			if err != nil {
+				println(tc.ExpectErrorReponse.Error())
 				assert.Contains(t, err.Error(), tc.ExpectErrorReponse.Error(), tc.Message)
 				return
 			}

@@ -36,7 +36,7 @@ func setupUUID() {
 	uuid.SetClockSequence(1)
 }
 
-type testStruct struct {
+type testCreateStruct struct {
 	Name               string
 	Message            string
 	Data               dto.UserDtoCreateInput
@@ -60,7 +60,7 @@ func TestUserCreate(t *testing.T) {
 		Author: fake.Person().FirstName(),
 	}
 
-	usecaseStruct := []testStruct{
+	usecaseStruct := []testCreateStruct{
 		{
 			Name:              "Failed process bind",
 			Message:           "should failed process bind",
