@@ -1,6 +1,12 @@
 package main
 
 import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 
@@ -45,9 +51,21 @@ func main() {
 	// init app
 	InitApp(config, dbManager, sess, minio, logger, keycloakIam)
 
-	err = common.Application.Echo.Start(":" + config.Port)
-	if err != nil {
-		logger.Fatal("Failed to start app", zap.Error(err))
-		panic(err)
+	go func() {
+		err = common.Application.Echo.Start(":" + config.Port)
+		if err != nil && err != http.ErrServerClosed {
+			logger.Fatal("F ailed to start app", zap.Error(err))
+		}
+		println(err)
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := common.Application.Echo.Shutdown(ctx); err != nil {
+		logger.Fatal("Something wrong when shutdown server", zap.Error(err))
 	}
 }
