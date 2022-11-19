@@ -23,7 +23,7 @@ import (
 
 func main() {
 	// init config
-	config := config.LoadConfigFromEnv()
+	config := config.LoadConfig()
 
 	// init logging
 	logger := InitLogging(config)
